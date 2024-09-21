@@ -23,9 +23,10 @@
   "license": "MIT",
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.16.4",
+    "@changesets/cli": "^2.27.8",
+    "@types/bun": "latest",
     "prettier": "^3.3.3",
-    "typescript": "^5.6.2",
-    "@types/bun": "latest"
+    "typescript": "^5.6.2"
   },
   "scripts": {
     "build": "tsc",
@@ -34,6 +35,8 @@
     "check-format": "prettier --check .",
     "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
     "test": "bun test",
-    "test-dev": "bun test --watch"
+    "test-dev": "bun test --watch",
+    "prepublishOnly": "bun run ci",
+    "local-release": "changeset version && changeset publish"
   }
 }
