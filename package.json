@@ -1,11 +1,38 @@
 {
-  "name": "auth-next-template",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest"
+  "name": "auth-next-helper",
+  "version": "1.0.0",
+  "description": "Utils for handling auth in Next.js",
+  "keywords": [
+    "auth",
+    "Next.js"
+  ],
+  "homepage": "https://github.com/wleklinskimateusz/next-auth-helper",
+  "bugs": {
+    "url": "https://github.com/wleklinskimateusz/next-auth-helper/issues"
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "author": "Mateusz Wleklinski <wleklinskimateusz05@gmail.com> (https://www.wleklinski.eu/)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wleklinskimateusz/next-auth-helper.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.16.4",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "ci": "bun run build && bun run check-format && bun run check-exports && bun run test",
+    "format": "prettier --write .",
+    "check-format": "prettier --check .",
+    "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
+    "test": "bun test",
+    "test-dev": "bun test --watch"
   }
 }
