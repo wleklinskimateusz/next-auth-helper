@@ -5,7 +5,7 @@ import { InternalServerError } from "../errors/internal-server.js";
 
 const getEncodedKey = Result.fromThrowable(
   (secretKey: string) => new TextEncoder().encode(secretKey),
-  getError("Unknown error while encoding secret key", InternalServerError)
+  getError("Unknown error while encoding secret key", InternalServerError),
 );
 
 const safeJwtVerify = ResultAsync.fromThrowable(
@@ -13,12 +13,12 @@ const safeJwtVerify = ResultAsync.fromThrowable(
     jwtVerify(session, encodedKey, {
       algorithms: ["HS256"],
     }),
-  getError("Failed to verify session", InternalServerError)
+  getError("Failed to verify session", InternalServerError),
 );
 
 export async function encrypt(
   payload: Record<string, unknown>,
-  secretKey: string
+  secretKey: string,
 ) {
   const encodedKeyResult = getEncodedKey(secretKey);
   if (encodedKeyResult.isErr()) return err(encodedKeyResult.error);
@@ -34,7 +34,7 @@ export async function encrypt(
 
 export async function decrypt(
   session: string | undefined = "",
-  secretKey: string
+  secretKey: string,
 ) {
   const encodedKeyResult = getEncodedKey(secretKey);
   if (encodedKeyResult.isErr()) return err(encodedKeyResult.error);

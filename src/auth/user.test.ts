@@ -12,7 +12,7 @@ describe("hash function", () => {
       const result = await comparePasswords(key, hashedPassword);
       if (result.isErr()) throw new Error("should not error!");
       expect(result.value).toBeTrue();
-    }
+    },
   );
 
   it("should fail with a password that similar to original one", async () => {

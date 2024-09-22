@@ -1,7 +1,7 @@
 export abstract class CommonError extends Error {
   constructor(
     override message: string,
-    public code: number
+    public code: number,
   ) {
     super();
   }

@@ -2,7 +2,7 @@ import type { CommonError } from "./common.js";
 
 export function getError<TError extends CommonError>(
   fallbackMessage: string = "Unknown Error occured",
-  ErrorClass: new (...args: any[]) => TError
+  ErrorClass: new (...args: any[]) => TError,
 ) {
   return (e: unknown) => {
     if (e instanceof Error) {
