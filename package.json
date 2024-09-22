@@ -24,12 +24,13 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.16.4",
     "@changesets/cli": "^2.27.8",
+    "@types/bcrypt": "^5.0.2",
     "@types/bun": "latest",
     "prettier": "^3.3.3",
     "typescript": "^5.6.2"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc --project tsconfig.production.json",
     "ci": "bun run build && bun run check-format && bun run check-exports && bun run test",
     "format": "prettier --write .",
     "check-format": "prettier --check .",
@@ -38,5 +39,10 @@
     "test-dev": "bun test --watch",
     "prepublishOnly": "bun run ci",
     "local-release": "changeset version && changeset publish"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "jose": "^5.9.2",
+    "neverthrow": "^8.0.0"
   }
 }
