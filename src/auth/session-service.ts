@@ -1,20 +1,20 @@
 import { jwtVerify, SignJWT } from "jose";
 import { z } from "zod";
-import { CommonError } from "../errors/common.js";
+import { CommonError } from "../common-error.js";
 
-export class SessionService<T extends Record<string, unknown>> {
+export class SessionService<T extends z.ZodSchema> {
   private static alorithm = "HS256";
   static expirationTimeDays = 7;
-  private payloadSchema: z.Schema<T & { expiresAt: number }>;
+  private payloadSchema: z.Schema<z.infer<T> & { expiresAt: number }>;
 
   private encodedKey: Uint8Array;
 
-  constructor(secretKey: string, payloadSchema: z.Schema<T>) {
+  constructor(secretKey: string, payloadSchema: T) {
     this.encodedKey = new TextEncoder().encode(secretKey);
     this.payloadSchema = payloadSchema.and(z.object({ expiresAt: z.number() }));
   }
 
-  createSession(payload: T) {
+  createSession(payload: z.infer<T>) {
     const expiresAt = SessionService.getExpirationTimeDate();
     return this.encryptSession({ ...payload, expiresAt });
   }
@@ -24,7 +24,7 @@ export class SessionService<T extends Record<string, unknown>> {
     return this.parsePayload(payload);
   }
 
-  private encryptSession(payload: T & { expiresAt: number }) {
+  private encryptSession(payload: z.infer<T> & { expiresAt: number }) {
     return new SignJWT(payload)
       .setProtectedHeader({ alg: SessionService.alorithm })
       .setIssuedAt()
@@ -45,11 +45,12 @@ export class SessionService<T extends Record<string, unknown>> {
 
   private parsePayload(session: unknown) {
     const result = this.getSessionSchema().safeParse(session);
-    if (result.success) return result.data;
-    throw new SessionService.WrongSessionPayload(
-      "parsing payload failed",
-      result.error
-    );
+    if (!result.success)
+      throw new SessionService.WrongSessionPayload(
+        "parsing payload failed",
+        result.error
+      );
+    return result.data;
   }
 
   private getSessionSchema() {
@@ -57,7 +58,9 @@ export class SessionService<T extends Record<string, unknown>> {
       .object({
         payload: this.payloadSchema,
       })
-      .transform(({ payload }) => payload);
+      .transform(
+        ({ payload }) => payload as z.infer<typeof this.payloadSchema>
+      );
   }
 
   private static getExpirationTimeString() {

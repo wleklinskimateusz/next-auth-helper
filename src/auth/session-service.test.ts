@@ -1,34 +1,43 @@
-import { describe, test, expect } from "bun:test";
-import { SessionService } from "./SessionService.js";
+import { describe, test, expect, beforeEach } from "bun:test";
+import { SessionService } from "./session-service.js";
 import { BRAND, z } from "zod";
 
 type UserId = number & BRAND<"userId">;
 
 describe("SessionService", () => {
-  test("should create session when payload is provided and decode it back", async () => {
-    const schema = z.object({ userId: z.number().brand<"userId">() });
-    const payload = { userId: 123 as UserId } satisfies z.infer<typeof schema>;
+  const schema = getSchema();
+  const secret = "secret key";
+  type Payload = z.infer<typeof schema>;
+  let sessionService: SessionService<z.Schema<Payload>>;
 
-    const sessionService = new SessionService("secret key", schema);
+  beforeEach(() => {
+    sessionService = new SessionService(secret, schema);
+  });
+
+  test("should create session when payload is provided and decode it back", async () => {
+    const schema = getSchema();
+    const payload = getPayload();
+
+    const sessionService = new SessionService(secret, schema);
 
     const session = await sessionService.createSession(payload);
     const result = await sessionService.retrievePayload(session);
 
+    result.userId satisfies UserId;
+
     expect(result).toEqual({
-      userId: payload.userId,
+      ...payload,
       expiresAt: expect.any(Number),
     });
   });
 
   test("should success if encode and decode with different instances of the service", async () => {
-    const schema = z.object({ userId: z.number().brand<"userId">() });
-    const payload = { userId: 123 as UserId } as const;
-    const secret = "secret key";
+    const schema = getSchema();
+    const payload = getPayload();
 
-    const firstService = new SessionService(secret, schema);
     const secondService = new SessionService(secret, schema);
 
-    const session = await firstService.createSession(payload);
+    const session = await sessionService.createSession(payload);
     const result = await secondService.retrievePayload(session);
 
     expect(result).toEqual({
@@ -38,11 +47,9 @@ describe("SessionService", () => {
   });
 
   test("should fail with WrongPayload for different payloads", async () => {
-    const firstSchema = z.object({ userId: z.number().brand<"userId">() });
-    const firstPayload = { userId: 123 as UserId } as const;
-    const firstService = new SessionService("secret key", firstSchema);
+    const firstPayload = getPayload();
 
-    const session = await firstService.createSession(firstPayload);
+    const session = await sessionService.createSession(firstPayload);
 
     const secondSchema = z.object({ user: z.string() });
     const secondService = new SessionService("secret key", secondSchema);
@@ -53,12 +60,10 @@ describe("SessionService", () => {
   });
 
   test("should fail if different secret is passed", async () => {
-    const schema = z.object({ userId: z.number().brand<"userId">() });
-    const payload = { userId: 123 as UserId } satisfies z.infer<typeof schema>;
+    const schema = getSchema();
+    const payload = getPayload();
 
-    const firstService = new SessionService("first key", schema);
-
-    const session = await firstService.createSession(payload);
+    const session = await sessionService.createSession(payload);
 
     const secondService = new SessionService("second key", schema);
 
@@ -66,4 +71,12 @@ describe("SessionService", () => {
       SessionService.SecretMismatch
     );
   });
+
+  function getSchema() {
+    return z.object({ userId: z.number().brand<"userId">() });
+  }
+
+  function getPayload() {
+    return { userId: 123 as UserId };
+  }
 });
