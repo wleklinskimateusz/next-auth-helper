@@ -32,10 +32,15 @@ export class SessionService<T extends Record<string, unknown>> {
       .sign(this.encodedKey);
   }
 
-  private decryptSession(session: string | undefined = "") {
-    return jwtVerify(session, this.encodedKey, {
-      algorithms: [SessionService.alorithm],
-    }) as Promise<unknown>;
+  private async decryptSession(session: string | undefined = "") {
+    try {
+      const result = await jwtVerify(session, this.encodedKey, {
+        algorithms: [SessionService.alorithm],
+      });
+      return result as unknown;
+    } catch (e) {
+      throw new SessionService.SecretMismatch("provided secret didn't match");
+    }
   }
 
   private parsePayload(session: unknown) {
@@ -63,12 +68,22 @@ export class SessionService<T extends Record<string, unknown>> {
     return Date.now() + SessionService.expirationTimeDays * 24 * 60 * 60 * 1000;
   }
 
-  private static WrongSessionPayload = class extends CommonError {
+  static WrongSessionPayload = class extends CommonError {
     override code: 400;
     constructor(message: string, cause?: unknown) {
       super(message, 400);
       this.code = 400;
       this.name = "WrongSessionPayload";
+      this.cause = cause;
+    }
+  };
+
+  static SecretMismatch = class extends CommonError {
+    override code: 400;
+    constructor(message: string, cause?: unknown) {
+      super(message, 400);
+      this.code = 400;
+      this.name = "SecretMismatch";
       this.cause = cause;
     }
   };
