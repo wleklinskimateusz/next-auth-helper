@@ -38,6 +38,7 @@
     "test": "bun test",
     "test-dev": "bun test --watch",
     "prepublishOnly": "bun run ci",
+    "create-release": "changeset",
     "local-release": "changeset version && changeset publish"
   },
   "dependencies": {
