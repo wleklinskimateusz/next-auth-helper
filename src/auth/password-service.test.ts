@@ -22,7 +22,7 @@ describe("PasswordService", () => {
 
     const result = await authService.comparePasswords(
       "password",
-      hashedPassword
+      hashedPassword,
     );
 
     expect(result).toBeFalse();
@@ -38,7 +38,7 @@ describe("PasswordService", () => {
 
     const result = await secondService.comparePasswords(
       password,
-      hashedPassword
+      hashedPassword,
     );
 
     expect(result).toBeTrue();

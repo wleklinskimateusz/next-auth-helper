@@ -55,7 +55,7 @@ describe("SessionService", () => {
     const secondService = new SessionService("secret key", secondSchema);
 
     expect(() => secondService.retrievePayload(session)).toThrowError(
-      SessionService.WrongSessionPayload
+      SessionService.WrongSessionPayload,
     );
   });
 
@@ -68,7 +68,7 @@ describe("SessionService", () => {
     const secondService = new SessionService("second key", schema);
 
     expect(() => secondService.retrievePayload(session)).toThrowError(
-      SessionService.SecretMismatch
+      SessionService.SecretMismatch,
     );
   });
 

@@ -48,7 +48,7 @@ export class SessionService<T extends z.ZodSchema> {
     if (!result.success)
       throw new SessionService.WrongSessionPayload(
         "parsing payload failed",
-        result.error
+        result.error,
       );
     return result.data;
   }
@@ -59,7 +59,7 @@ export class SessionService<T extends z.ZodSchema> {
         payload: this.payloadSchema,
       })
       .transform(
-        ({ payload }) => payload as z.infer<typeof this.payloadSchema>
+        ({ payload }) => payload as z.infer<typeof this.payloadSchema>,
       );
   }
 
